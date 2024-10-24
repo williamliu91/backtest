@@ -2,7 +2,6 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas_ta as ta
 import streamlit as st
 import base64
 
@@ -15,7 +14,7 @@ st.title('Stock Data Dashboard')
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
-    return base64.b64encode(data).decode()
+    return base64.b64encode(data).decodpie()
 
 # Path to the locally stored QR code image
 qr_code_path = "qrcode.png"  # Ensure the image is in your app directory
@@ -56,6 +55,21 @@ def calculate_atr(data, period=14):
     
     return atr
 
+# Calculate EMA
+def calculate_ema(prices, period):
+    alpha = 2 / (period + 1)
+    ema = prices.ewm(span=period, adjust=False).mean()
+    return ema
+
+# Calculate RSI
+def calculate_rsi(prices, period):
+    delta = prices.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+    rs = gain / loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
+
 def fetch_stock_data(stock_symbol, period):
     # Fetch stock data from Yahoo Finance
     stock_data = yf.download(stock_symbol, period=period, interval='1d')
@@ -70,10 +84,10 @@ def fetch_stock_data(stock_symbol, period):
     stock_data['VWAP'] = stock_data['Cumulative_TPV'] / stock_data['Cumulative_Volume']
     
     # Calculate EMA 50
-    stock_data['EMA_50'] = ta.ema(stock_data['Close'], length=50)
+    stock_data['EMA_50'] = calculate_ema(stock_data['Close'], 50)
     
     # Calculate RSI
-    stock_data['RSI'] = ta.rsi(stock_data['Close'], length=14)
+    stock_data['RSI'] = calculate_rsi(stock_data['Close'], 14)
     
     # Calculate ATR
     stock_data['ATR'] = calculate_atr(stock_data)
