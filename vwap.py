@@ -6,15 +6,10 @@ import streamlit as st
 import base64
 
 
-# Streamlit application
-st.set_page_config(page_title="Stock Data Dashboard", layout="wide")
-st.title('Stock Data Dashboard')
-
-# Function to load the image and convert it to base64
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decodpie()
+def get_base64_of_bin_file(bin_file_path):
+    with open(bin_file_path, "rb") as bin_file:
+        data = bin_file.read()
+    return base64.b64encode(data).decode()  # Corrected this line
 
 # Path to the locally stored QR code image
 qr_code_path = "qrcode.png"  # Ensure the image is in your app directory
@@ -38,6 +33,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
 def calculate_atr(data, period=14):
